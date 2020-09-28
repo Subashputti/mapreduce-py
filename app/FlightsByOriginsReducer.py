@@ -1,10 +1,13 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.6
 
 import sys
+import socket
+import re
 
 
-class WordCountReducer:
+class FlightsByOriginsReducer:
     def __init__(self):
+        self.count = 0
         self.current_word = None
         self.current_count = 0
         self.word = None
@@ -12,27 +15,30 @@ class WordCountReducer:
     def reduce(self):
         for line in sys.stdin:
             line = line.strip()
-            self.word, count = line.split('\t', 1)
+            self.word, self.count = line.split('\t', 1)
             try:
-                count = int(count)
+                self.count = int(self.count)
             except ValueError:
                 continue
+
             if self.current_word == self.word:
-                self.current_count += count
+                self.current_count += self.count
             else:
                 if self.current_word:
                     print('{}\t{}'.format(self.current_word, self.current_count))
-                self.current_count = count
+                self.current_count = self.count
                 self.current_word = self.word
 
         if self.current_word == self.word:
             print('{}\t{}'.format(self.current_word, self.current_count))
 
 
-def main():
-    word_count_mapper = WordCountReducer()
-    word_count_mapper.reduce()
+# Main
+
+def main(argv):
+    flights_by_origins_reducer = FlightsByOriginsReducer()
+    flights_by_origins_reducer.reduce()
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    main(sys.argv[:1])
